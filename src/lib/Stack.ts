@@ -1,4 +1,4 @@
-import { InventorySingleton } from "./Inventory";
+import { InventoryItemClass, InventorySingleton } from "./Inventory";
 
 export class StackSingleton{
     private static _instance: StackSingleton;
@@ -11,7 +11,7 @@ export class StackSingleton{
                 true, 
                 [], 
                 [
-                    { itemId: 'wood', count: 1 }
+                    new InventoryItemClass('wood', 1)
                 ],
                 10
             )
@@ -21,10 +21,8 @@ export class StackSingleton{
             new StackAction(
                 'FungiFarm', 
                 true, 
-                [ { itemId: 'wood', count: 10 } ], 
-                [
-                    { itemId: 'food', count: 5 }
-                ]
+                [ new InventoryItemClass('wood', 10) ], 
+                [ new InventoryItemClass('food', 5) ]
             )
         );
         
@@ -63,22 +61,17 @@ export class StackSingleton{
     }
 }
 
-export type StackResource = {
-    itemId: string
-    count: number
-}
-
 export class StackAction{
     private inventory: InventorySingleton;
 
     title: string = "title";
     repeat: boolean = true;
-    inputResources: StackResource[] = []
-    outputResources: StackResource[] = []
+    inputResources: InventoryItemClass[] = []
+    outputResources: InventoryItemClass[] = []
     warmup: number = 0;
     warmupLeft: number = 0;
 
-    constructor(title: string, repeat:boolean, inputResources: StackResource[], outputResources: StackResource[], warmup: number = 0){
+    constructor(title: string, repeat:boolean, inputResources: InventoryItemClass[], outputResources: InventoryItemClass[], warmup: number = 0){
         this.inventory = InventorySingleton.getInstance();
         this.title = title;
         this.repeat = repeat;
@@ -98,7 +91,7 @@ export class StackAction{
         var enoughResourcesAvailable = true;
 
         this.inputResources.forEach(element => {
-            var item = this.inventory.getItem(element.itemId);
+            var item = this.inventory.getItem(element.id);
             if (!item) return;
             if (item.count < element.count) {
                 enoughResourcesAvailable = false;
@@ -107,11 +100,11 @@ export class StackAction{
 
         if (enoughResourcesAvailable) {
             this.inputResources.forEach(element => {
-                this.inventory.getItem(element.itemId)?.remove(element.count);
+                this.inventory.getItem(element.id)?.remove(element.count);
             });
 
             this.outputResources.forEach(element => {
-                this.inventory.getItem(element.itemId)?.add(element.count);
+                this.inventory.getItem(element.id)?.add(element.count);
             });
         }
     }
